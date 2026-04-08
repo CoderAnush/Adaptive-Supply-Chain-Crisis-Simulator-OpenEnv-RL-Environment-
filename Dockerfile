@@ -7,17 +7,17 @@ COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 # Create a non-privileged user (required for Hugging Face Spaces)
 RUN useradd -m -u 1000 user
 WORKDIR /app
-RUN chown user:user /app
 
+# Copy all files first
+COPY . .
+
+# Install dependencies as ROOT to avoid permission issues with /usr/local
+RUN uv pip install --system --no-cache .
+
+# Set permissions for the non-privileged user
+RUN chown -R user:user /app
 USER user
 ENV PATH="/home/user/.local/bin:$PATH"
-
-# Copy all files first so that 'uv pip install .' can find the packages
-COPY --chown=user . .
-
-# Install dependencies
-# Using --system to install to the global environment
-RUN uv pip install --system --no-cache .
 
 # Ensure the app listens on port 7860 as required by Hugging Face
 ENV PORT=7860
