@@ -9,9 +9,9 @@ from supply_chain.models import Action
 from supply_chain.agent import LLMAgent
 
 # Constants as required by the grading specification
-API_BASE_URL = os.getenv("API_BASE_URL") or "https://api.openai.com/v1"
-MODEL_NAME = os.getenv("MODEL_NAME") or "gpt-4o"
-API_KEY = os.getenv("HF_TOKEN") or os.getenv("OPENAI_API_KEY") or os.getenv("API_KEY")
+API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
+MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o")
+HF_TOKEN = os.getenv("HF_TOKEN")
 BENCHMARK = "supply_chain_simulator"
 
 def log_start(task: str, env: str, model: str) -> None:
@@ -27,8 +27,8 @@ def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> No
     print(f"[END] success={str(success).lower()} steps={steps} score={score:.3f} rewards={rewards_str}", flush=True)
 
 async def main():
-    # Initialize the OpenAI-powered agent
-    agent = LLMAgent(model=MODEL_NAME)
+    # Initialize the OpenAI-powered agent with strictly defined config
+    agent = LLMAgent(model=MODEL_NAME, api_key=HF_TOKEN, base_url=API_BASE_URL)
     
     for task_id, grader in TASKS.items():
         # Initialize environmental state for the specific task
