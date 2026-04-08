@@ -180,10 +180,10 @@ The environment will start the FastAPI server on `http://localhost:7860`.
 pip install -r requirements.txt
 
 # Run the baseline evaluation
-python inference.py
+python app.py
 
 # Or start the server directly for API testing
-python -c "from supply_chain.inference import app; import uvicorn; uvicorn.run(app, host='0.0.0.0', port=7860)"
+python -c "from app import app; import uvicorn; uvicorn.run(app, host='0.0.0.0', port=7860)"
 ```
 
 ---
@@ -218,7 +218,7 @@ pip install -r requirements.txt
 
 **As a local baseline evaluation:**
 ```bash
-python inference.py
+python app.py
 ```
 This will:
 - Initialize the supply chain world
@@ -236,7 +236,7 @@ Task: BLACK_SWAN | Baseline Score: 0.43
 **As an API server (for external agents):**
 ```bash
 # Start the server
-python -c "from supply_chain.inference import app; import uvicorn; uvicorn.run(app, host='0.0.0.0', port=7860)"
+python -c "from app import app; import uvicorn; uvicorn.run(app, host='0.0.0.0', port=7860)"
 ```
 
 Then interact with the environment via REST API using curl or Python:
