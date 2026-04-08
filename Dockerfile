@@ -12,12 +12,12 @@ RUN chown user:user /app
 USER user
 ENV PATH="/home/user/.local/bin:$PATH"
 
-# Install dependencies using the lockfile for reproducibility
-COPY --chown=user pyproject.toml uv.lock ./
-RUN uv pip install --system --no-cache .
-
-# Copy the rest of the code
+# Copy all files first so that 'uv pip install .' can find the packages
 COPY --chown=user . .
+
+# Install dependencies
+# Using --system to install to the global environment
+RUN uv pip install --system --no-cache .
 
 # Ensure the app listens on port 7860 as required by Hugging Face
 ENV PORT=7860
