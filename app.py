@@ -75,16 +75,17 @@ def run_agent(env, max_steps, debug=False):
     return total_reward
 
 def evaluate_tasks():
+    results = {}
     print("Evaluating Global Supply Chain Environment Baseline...")
     for task_name, grader in TASKS.items():
         env = SupplyChainEnv(config=grader.config)
         # Turn on debug for the first task just to show output
         debug_mode = (task_name == "steady_state")
-        if debug_mode:
-            print(f"\n--- Starting Debug Trace for {task_name.upper()} ---")
         run_agent(env, grader.config["max_steps"], debug=debug_mode)
         score = grader.grade(env)
-        print(f"\nTask: {task_name.upper()} | Baseline Score: {score:.2f}")
+        results[task_name] = round(score, 2)
+        print(f"Task: {task_name.upper()} | Baseline Score: {score:.2f}")
+    return results
 
 # --- OpenEnv FastAPI Server ---
 app = FastAPI(title="Supply Chain Crisis Simulator")
@@ -96,8 +97,13 @@ def read_root():
         "Hello": "World!",
         "status": "online",
         "message": "Adaptive Global Supply Chain Crisis Simulator is running.",
-        "endpoints": ["/reset (POST)", "/step (POST)", "/state (GET)"]
+        "endpoints": ["/reset (POST)", "/step (POST)", "/state (GET)", "/evaluate (GET)"]
     }
+
+@app.get("/evaluate")
+def api_evaluate():
+    scores = evaluate_tasks()
+    return {"baseline_scores": scores}
 
 @app.post("/reset")
 def api_reset():
