@@ -69,4 +69,9 @@ async def main():
         log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    import traceback
+    try:
+        asyncio.run(main())
+    except Exception:
+        traceback.print_exc()
+        os._exit(1)
