@@ -180,10 +180,11 @@ The environment will start the FastAPI server on `http://localhost:7860`.
 pip install -r requirements.txt
 
 # Run the baseline evaluation
-python app.py
+# Run the baseline evaluation (Compliant with [START]/[STEP]/[END] format)
+python inference.py
 
 # Or start the server directly for API testing
-python -c "from app import app; import uvicorn; uvicorn.run(app, host='0.0.0.0', port=7860)"
+python app.py
 ```
 
 ---
