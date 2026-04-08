@@ -14,7 +14,7 @@ ENV PATH="/home/user/.local/bin:$PATH"
 
 # Install dependencies using the lockfile for reproducibility
 COPY --chown=user pyproject.toml uv.lock ./
-RUN uv pip install --no-cache .
+RUN uv pip install --system --no-cache .
 
 # Copy the rest of the code
 COPY --chown=user . .
