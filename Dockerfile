@@ -1,5 +1,5 @@
-# Use official Python 3.9 image as base
-FROM python:3.9-slim
+# Use official Python 3.11 image as base (required for openenv-core)
+FROM python:3.11-slim
 
 # Install uv for fast dependency management
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
