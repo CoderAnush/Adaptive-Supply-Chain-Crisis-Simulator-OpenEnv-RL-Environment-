@@ -4,14 +4,27 @@ from openai import OpenAI
 from .models import Action, Observation
 
 class LLMAgent:
-    def __init__(self, model="gpt-4o", api_key=None, base_url=None):
-        self.api_key = api_key or os.getenv("HF_TOKEN") or os.getenv("OPENAI_API_KEY")
+    def __init__(self, model=None, api_key=None, base_url=None):
+        self.api_key = (
+            api_key or 
+            os.getenv("OPENENV_API_KEY") or 
+            os.getenv("HF_TOKEN") or 
+            os.getenv("API_KEY") or 
+            os.getenv("OPENAI_API_KEY")
+        )
+        self.base_url = (
+            base_url or 
+            os.getenv("OPENENV_API_BASE") or 
+            os.getenv("API_BASE_URL") or 
+            os.getenv("OPENAI_API_BASE")
+        )
+        self.model = model or os.getenv("MODEL_NAME") or os.getenv("OPENENV_MODEL_NAME") or "gpt-4o"
+        
         if not self.api_key:
-            print("Warning: No API key found. LLMAgent will use a mock/heuristic approach.")
+            print("Warning: No API key found. LLMAgent requirements may not be met.")
             self.client = None
         else:
-            self.client = OpenAI(api_key=self.api_key, base_url=base_url)
-        self.model = model
+            self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
 
     def get_action(self, obs: Observation) -> Action:
         if not self.client:

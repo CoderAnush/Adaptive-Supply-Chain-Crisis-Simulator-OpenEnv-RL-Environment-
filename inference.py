@@ -14,9 +14,19 @@ from supply_chain.models import Action
 
 # --- Mandatory Environment Configuration ---
 # Platform injected variables must take precedence and should not have local defaults that conflict with the proxy
-API_BASE_URL = os.getenv("API_BASE_URL") or "https://api.openai.com/v1"
-MODEL_NAME = os.getenv("MODEL_NAME") or "gpt-4o"
-API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
+API_BASE_URL = (
+    os.getenv("OPENENV_API_BASE") or 
+    os.getenv("API_BASE_URL") or 
+    os.getenv("OPENAI_API_BASE") or 
+    "https://api.openai.com/v1"
+)
+MODEL_NAME = os.getenv("MODEL_NAME") or os.getenv("OPENENV_MODEL_NAME") or "gpt-4o"
+API_KEY = (
+    os.getenv("OPENENV_API_KEY") or 
+    os.getenv("HF_TOKEN") or 
+    os.getenv("API_KEY") or 
+    os.getenv("OPENAI_API_KEY")
+)
 
 if not API_KEY:
     print("[WARNING] No API_KEY or HF_TOKEN found in environment variables.", flush=True)
