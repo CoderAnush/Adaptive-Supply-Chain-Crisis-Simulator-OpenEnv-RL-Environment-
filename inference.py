@@ -14,15 +14,22 @@ from supply_chain.models import Action
 
 # --- Mandatory Environment Configuration ---
 # As per the validator's instructions:
-# Initialize your OpenAI client with base_url=os.environ.get("API_BASE_URL") and api_key=os.environ.get("API_KEY")
-API_BASE_URL = os.environ.get("API_BASE_URL")
-API_KEY = os.environ.get("API_KEY")
-MODEL_NAME = os.environ.get("MODEL_NAME", "gpt-4o")
-
-# Ensure we don't hardcode or bypass the proxy
-if not API_BASE_URL:
-    # Fallback only for local testing, but the proxy MUST be used in evaluation
-    API_BASE_URL = "https://api.openai.com/v1"
+# Initialize your OpenAI client with base_url=os.environ["API_BASE_URL"] and api_key=os.environ["API_KEY"]
+try:
+    API_BASE_URL = os.environ["API_BASE_URL"]
+    API_KEY = os.environ["API_KEY"]
+    MODEL_NAME = os.environ.get("MODEL_NAME", "gpt-4o")
+    
+    # Print configuration (sanitized) to help debugging
+    print(f"[DEBUG] Using API_BASE_URL: {API_BASE_URL}")
+    print(f"[DEBUG] Using MODEL_NAME: {MODEL_NAME}")
+    print(f"[DEBUG] API_KEY length: {len(API_KEY) if API_KEY else 0}")
+except KeyError as e:
+    print(f"[ERROR] Missing mandatory environment variable: {e}")
+    # Still setting them to None so the agent init can handle it or fail gracefully
+    API_BASE_URL = os.environ.get("API_BASE_URL")
+    API_KEY = os.environ.get("API_KEY")
+    MODEL_NAME = os.environ.get("MODEL_NAME", "gpt-4o")
 
 if not API_KEY:
     print("[WARNING] No API_KEY or HF_TOKEN found in environment variables.", flush=True)

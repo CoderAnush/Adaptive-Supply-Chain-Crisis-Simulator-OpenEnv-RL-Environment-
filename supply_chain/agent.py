@@ -10,8 +10,10 @@ class LLMAgent:
         self.base_url = base_url or os.environ.get("API_BASE_URL")
         self.model = model or os.environ.get("MODEL_NAME", "gpt-4o")
         
+        print(f"[DEBUG] LLMAgent init with base_url: {self.base_url}")
+        
         if not self.api_key:
-            print("Warning: API_KEY not found. Agent evaluation may fail.")
+            print("[ERROR] LLMAgent: API_KEY not found. LLM calls will fail.")
             self.client = None
         else:
             # Initialize exactly as suggested by the validator
