@@ -5,12 +5,12 @@ from .models import Action, Observation
 
 class LLMAgent:
     def __init__(self, model, api_key, base_url):
-        # Platform mandated initialization
-        self.model = model
+        # Platform mandated initialization pattern
+        self.model = model or os.environ.get("MODEL_NAME", "gpt-4o-mini")
         self.api_key = api_key
         self.base_url = base_url
         
-        print(f"[DEBUG] Initializing OpenAI Client with base_url: {self.base_url}")
+        # Initialize the OpenAI client exactly as specified
         self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
 
     def get_action(self, obs: Observation) -> Action:
