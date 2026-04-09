@@ -1,18 +1,27 @@
 import asyncio
 import os
+import textwrap
 import json
+import traceback
 from typing import List, Optional
 from openai import OpenAI
+
+# Domain specific imports
 from supply_chain.env import SupplyChainEnv
 from supply_chain.graders import TASKS
-from supply_chain.models import Action
 from supply_chain.agent import LLMAgent
+from supply_chain.models import Action
 
-# Constants as required by the grading specification
+# --- Mandatory Environment Configuration ---
 API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
 MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o")
 HF_TOKEN = os.getenv("HF_TOKEN")
+API_KEY = HF_TOKEN or os.getenv("API_KEY")
+
+# Task selection: Priorities the environment variable from OpenEnv/Grader
+TASK_ID = os.getenv("OPENENV_TASK_ID") or os.getenv("MY_ENV_V4_TASK") or "steady_state"
 BENCHMARK = "supply_chain_simulator"
+SUCCESS_SCORE_THRESHOLD = 0.1
 
 def log_start(task: str, env: str, model: str) -> None:
     print(f"[START] task={task} env={env} model={model}", flush=True)
@@ -26,50 +35,71 @@ def log_end(success: bool, steps: int, score: float, rewards: List[float]) -> No
     rewards_str = ",".join(f"{r:.2f}" for r in rewards)
     print(f"[END] success={str(success).lower()} steps={steps} score={score:.3f} rewards={rewards_str}", flush=True)
 
-async def main():
-    # Initialize the OpenAI-powered agent with strictly defined config
-    agent = LLMAgent(model=MODEL_NAME, api_key=HF_TOKEN, base_url=API_BASE_URL)
+async def main() -> None:
+    # Initialize the Agent
+    agent = LLMAgent(model=MODEL_NAME, api_key=API_KEY, base_url=API_BASE_URL)
     
-    for task_id, grader in TASKS.items():
-        # Initialize environmental state for the specific task
-        env = SupplyChainEnv(config=grader.config)
-        log_start(task=task_id, env=BENCHMARK, model=MODEL_NAME)
-        
+    # Select the specific task
+    grader = TASKS.get(TASK_ID)
+    if not grader:
+        # Default to steady_state if not found
+        TASK_NAME = "steady_state"
+        grader = TASKS[TASK_NAME]
+    else:
+        TASK_NAME = TASK_ID
+
+    # Initialize the environment locally (as it is included in the package)
+    env = SupplyChainEnv(config=grader.config)
+    
+    rewards: List[float] = []
+    steps_taken = 0
+    score = 0.0
+    success = False
+
+    log_start(task=TASK_NAME, env=BENCHMARK, model=MODEL_NAME)
+
+    try:
         obs = env.reset()
-        rewards: List[float] = []
-        steps_taken = 0
-        done = False
-        
-        # Standard OpenEnv loop
-        for step in range(1, grader.config["max_steps"] + 1):
-            if done:
+        max_steps = grader.config.get("max_steps", 20)
+
+        for step in range(1, max_steps + 1):
+            try:
+                # Agent generates action based on current observation
+                action_obj = agent.get_action(obs)
+                
+                # Execute action in the environment
+                obs, reward_obj, done, info = env.step(action_obj)
+                
+                reward = reward_obj.value
+                error = info.get("error")
+                
+                rewards.append(reward)
+                steps_taken = step
+                
+                # Format action description for logging
+                action_desc = ", ".join([f"{r.quantity}x {r.transport_mode}" for r in action_obj.routes]) or "Hold"
+                
+                log_step(step=step, action=action_desc, reward=reward, done=done, error=error)
+                
+                if done:
+                    break
+            except Exception as e:
+                print(f"[DEBUG] Step {step} error: {e}", flush=True)
+                log_step(step=step, action="error", reward=0.0, done=True, error=str(e))
                 break
-            
-            # Agent makes a decision based on the observation
-            action_obj = agent.get_action(obs)
-            
-            # Environment processes the action
-            obs, reward, done, info = env.step(action_obj)
-            
-            error = info.get("error")
-            rewards.append(reward.value)
-            steps_taken = step
-            
-            # Logic to create a human-readable action string for logs
-            action_desc = ", ".join([f"{r.quantity}x {r.transport_mode}" for r in action_obj.routes]) or "Hold"
-            
-            log_step(step=step, action=action_desc, reward=reward.value, done=done, error=error)
-            
-            if done:
-                break
-        
-        # Final scoring using the task grader
+
+        # Calculate final score and success state
         score = grader.grade(env)
-        success = score >= 0.1 # Success threshold defined in specifications
+        success = score >= SUCCESS_SCORE_THRESHOLD
+
+    except Exception as e:
+        print(f"[DEBUG] Fatal execution error: {e}", flush=True)
+        traceback.print_exc()
+    finally:
+        # Ensure log_end is always called as per specification
         log_end(success=success, steps=steps_taken, score=score, rewards=rewards)
 
 if __name__ == "__main__":
-    import traceback
     try:
         asyncio.run(main())
     except Exception:
