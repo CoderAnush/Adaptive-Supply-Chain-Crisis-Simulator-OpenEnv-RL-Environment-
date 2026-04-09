@@ -42,7 +42,7 @@ class LLMAgent:
             return Action(**action_json)
         except Exception as e:
             print(f"LLM Error: {e}")
-            return self._heuristic_fallback(obs)
+            raise e
 
     def _heuristic_fallback(self, obs: Observation) -> Action:
         # Simplified version of the heuristic in app.py

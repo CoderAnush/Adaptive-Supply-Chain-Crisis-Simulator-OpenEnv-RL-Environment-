@@ -13,13 +13,16 @@ from supply_chain.agent import LLMAgent
 from supply_chain.models import Action
 
 # --- Mandatory Environment Configuration ---
-API_BASE_URL = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
-MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o")
-HF_TOKEN = os.getenv("HF_TOKEN")
-API_KEY = HF_TOKEN or os.getenv("API_KEY")
+# Platform injected variables must take precedence and should not have local defaults that conflict with the proxy
+API_BASE_URL = os.getenv("API_BASE_URL") or "https://api.openai.com/v1"
+MODEL_NAME = os.getenv("MODEL_NAME") or "gpt-4o"
+API_KEY = os.getenv("HF_TOKEN") or os.getenv("API_KEY")
+
+if not API_KEY:
+    print("[WARNING] No API_KEY or HF_TOKEN found in environment variables.", flush=True)
 
 # Task selection: Priorities the environment variable from OpenEnv/Grader
-TASK_ID = os.getenv("OPENENV_TASK_ID") or os.getenv("MY_ENV_V4_TASK") or "steady_state"
+TASK_ID = os.getenv("OPENENV_TASK_ID") or os.getenv("MY_ENV_V4_TASK") or os.getenv("TASK_NAME") or "steady_state"
 BENCHMARK = "supply_chain_simulator"
 SUCCESS_SCORE_THRESHOLD = 0.1
 
