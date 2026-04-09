@@ -12,7 +12,7 @@ authors = [
 dependencies = [
     "pydantic",
     "networkx",
-    "openai",
+    "openai>=1.0.0",
     "fastapi",
     "uvicorn[standard]",
     "openenv-core>=0.2.0"
