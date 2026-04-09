@@ -5,25 +5,16 @@ from .models import Action, Observation
 
 class LLMAgent:
     def __init__(self, model=None, api_key=None, base_url=None):
-        self.api_key = (
-            api_key or 
-            os.getenv("OPENENV_API_KEY") or 
-            os.getenv("HF_TOKEN") or 
-            os.getenv("API_KEY") or 
-            os.getenv("OPENAI_API_KEY")
-        )
-        self.base_url = (
-            base_url or 
-            os.getenv("OPENENV_API_BASE") or 
-            os.getenv("API_BASE_URL") or 
-            os.getenv("OPENAI_API_BASE")
-        )
-        self.model = model or os.getenv("MODEL_NAME") or os.getenv("OPENENV_MODEL_NAME") or "gpt-4o"
+        # Strictly use environment variables injected by the platform
+        self.api_key = api_key or os.environ.get("API_KEY")
+        self.base_url = base_url or os.environ.get("API_BASE_URL")
+        self.model = model or os.environ.get("MODEL_NAME", "gpt-4o")
         
         if not self.api_key:
-            print("Warning: No API key found. LLMAgent requirements may not be met.")
+            print("Warning: API_KEY not found. Agent evaluation may fail.")
             self.client = None
         else:
+            # Initialize exactly as suggested by the validator
             self.client = OpenAI(api_key=self.api_key, base_url=self.base_url)
 
     def get_action(self, obs: Observation) -> Action:

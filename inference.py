@@ -13,20 +13,16 @@ from supply_chain.agent import LLMAgent
 from supply_chain.models import Action
 
 # --- Mandatory Environment Configuration ---
-# Platform injected variables must take precedence and should not have local defaults that conflict with the proxy
-API_BASE_URL = (
-    os.getenv("OPENENV_API_BASE") or 
-    os.getenv("API_BASE_URL") or 
-    os.getenv("OPENAI_API_BASE") or 
-    "https://api.openai.com/v1"
-)
-MODEL_NAME = os.getenv("MODEL_NAME") or os.getenv("OPENENV_MODEL_NAME") or "gpt-4o"
-API_KEY = (
-    os.getenv("OPENENV_API_KEY") or 
-    os.getenv("HF_TOKEN") or 
-    os.getenv("API_KEY") or 
-    os.getenv("OPENAI_API_KEY")
-)
+# As per the validator's instructions:
+# Initialize your OpenAI client with base_url=os.environ.get("API_BASE_URL") and api_key=os.environ.get("API_KEY")
+API_BASE_URL = os.environ.get("API_BASE_URL")
+API_KEY = os.environ.get("API_KEY")
+MODEL_NAME = os.environ.get("MODEL_NAME", "gpt-4o")
+
+# Ensure we don't hardcode or bypass the proxy
+if not API_BASE_URL:
+    # Fallback only for local testing, but the proxy MUST be used in evaluation
+    API_BASE_URL = "https://api.openai.com/v1"
 
 if not API_KEY:
     print("[WARNING] No API_KEY or HF_TOKEN found in environment variables.", flush=True)
