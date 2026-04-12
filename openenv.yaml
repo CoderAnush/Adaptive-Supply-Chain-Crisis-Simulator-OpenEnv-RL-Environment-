@@ -1,6 +1,9 @@
 spec_version: 1
 name: supply_chain_simulator
 type: space
+runtime: fastapi
+app: server.app:app
+port: 7860
 version: 1.0.0
 description: Adaptive Global Supply Chain Crisis Simulator with Partial Observability and Uncertainty
 author: openenv

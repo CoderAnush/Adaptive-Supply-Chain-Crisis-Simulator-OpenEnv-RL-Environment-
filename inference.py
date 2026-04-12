@@ -18,7 +18,8 @@ from supply_chain.models import Action
 # 2. Initialize exactly as shown in the example
 # 3. Use gpt-4o-mini as the default if MODEL_NAME is missing
 API_BASE_URL = os.environ["API_BASE_URL"]
-API_KEY = os.environ["API_KEY"]
+# The platform may provide the set variable as API_KEY, HF_TOKEN, or OPENENV_API_KEY
+API_KEY = os.environ.get("OPENENV_API_KEY") or os.environ.get("HF_TOKEN") or os.environ.get("API_KEY", "")
 MODEL_NAME = os.environ.get("MODEL_NAME", "gpt-4o-mini")
 
 print(f"[DEBUG] Initializing with LLM Proxy: {API_BASE_URL}")
