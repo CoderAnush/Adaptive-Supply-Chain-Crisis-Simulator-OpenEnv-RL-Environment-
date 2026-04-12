@@ -7,7 +7,9 @@ class EasyGrader:
         st = env.state()
         rate = st.total_fulfilled / max(1, (st.total_fulfilled + st.total_unfulfilled))
         cost_score = max(0, 1.0 - (st.total_cost / 8000.0))
-        return min(1.0, max(0.0, (0.7 * rate) + (0.3 * cost_score)))
+        raw_score = (0.7 * rate) + (0.3 * cost_score)
+        # Scale score to be strictly within (0.01, 0.99) range as per platform requirements
+        return min(0.99, max(0.01, raw_score))
 
 class MediumGrader:
     def __init__(self):
@@ -16,7 +18,8 @@ class MediumGrader:
         st = env.state()
         rate = st.total_fulfilled / max(1, (st.total_fulfilled + st.total_unfulfilled))
         cost_score = max(0, 1.0 - (st.total_cost / 12000.0))
-        return min(1.0, max(0.0, (0.6 * rate) + (0.4 * cost_score)))
+        raw_score = (0.6 * rate) + (0.4 * cost_score)
+        return min(0.99, max(0.01, raw_score))
 
 class HardGrader:
     def __init__(self):
@@ -27,10 +30,26 @@ class HardGrader:
         cost_score = max(0, 1.0 - (st.total_cost / 18000.0))
         # Hard task penalizes heavily for low fulfillment rate
         rate_penalized = max(0, (rate - 0.2) * 1.25)
-        return min(1.0, max(0.0, (0.7 * rate_penalized) + (0.3 * cost_score)))
+        raw_score = (0.7 * rate_penalized) + (0.3 * cost_score)
+        return min(0.99, max(0.01, raw_score))
+
+# Grader instances
+STEADY_STATE_GRADER = EasyGrader()
+SUEZ_BLOCKAGE_GRADER = MediumGrader()
+BLACK_SWAN_GRADER = HardGrader()
+
+# Top-level callables for openenv.yaml
+def grade_steady_state(env: SupplyChainEnv) -> float:
+    return STEADY_STATE_GRADER.grade(env)
+
+def grade_suez_blockage(env: SupplyChainEnv) -> float:
+    return SUEZ_BLOCKAGE_GRADER.grade(env)
+
+def grade_black_swan(env: SupplyChainEnv) -> float:
+    return BLACK_SWAN_GRADER.grade(env)
 
 TASKS = {
-    "steady_state": EasyGrader(),
-    "suez_blockage": MediumGrader(),
-    "black_swan": HardGrader()
+    "steady_state": STEADY_STATE_GRADER,
+    "suez_blockage": SUEZ_BLOCKAGE_GRADER,
+    "black_swan": BLACK_SWAN_GRADER
 }

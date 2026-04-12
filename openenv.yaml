@@ -10,7 +10,10 @@ model_paths:
 tasks:
   - id: steady_state
     description: Easy task with predictable demand and no crises.
+    grader: supply_chain.graders:grade_steady_state
   - id: suez_blockage
     description: Medium task introducing fixed route blockages.
+    grader: supply_chain.graders:grade_suez_blockage
   - id: black_swan
     description: Hard task with extreme, stochastic multi-modal crises.
+    grader: supply_chain.graders:grade_black_swan
