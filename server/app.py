@@ -21,32 +21,33 @@ def read_root():
 
 @app.get("/v1/tasks")
 def get_tasks():
-    # Returns the list of tasks for the OpenEnv validator
+    # Returns the list of tasks for the OpenEnv validator with mandatory 'tags'
     return [
         {
-            "id": "steady_state",
+            "id": "task_easy",
             "name": "Steady State Management",
             "difficulty": "easy",
+            "tags": ["eval"],
             "description": "Easy task with predictable demand and no crises."
         },
         {
-            "id": "suez_blockage",
+            "id": "task_medium",
             "name": "Route Blockage Response",
             "difficulty": "medium",
+            "tags": ["eval"],
             "description": "Medium task introducing fixed route blockages."
         },
         {
-            "id": "black_swan",
+            "id": "task_hard",
             "name": "Black Swan Crisis",
             "difficulty": "hard",
+            "tags": ["eval"],
             "description": "Hard task with extreme, stochastic multi-modal crises."
         }
     ]
 
 @app.post("/reset")
 def api_reset(request: Request = None):
-    # Optional: Select task based on task_id if provided
-    # For now, reseting the default environment is sufficient for basic validation
     obs = default_env.reset()
     return obs.dict()
 
@@ -54,7 +55,6 @@ def api_reset(request: Request = None):
 async def api_step(request: Request):
     try:
         body = await request.json()
-        # OpenEnv sometimes sends action wrapped in a field or as root
         if "action" in body:
             action_obj = Action(**body["action"])
         else:

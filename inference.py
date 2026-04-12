@@ -29,7 +29,7 @@ if not API_KEY:
     print("[WARNING] No API_KEY or HF_TOKEN found in environment variables.", flush=True)
 
 # Task selection: Priorities the environment variable from OpenEnv/Grader
-TASK_ID = os.getenv("OPENENV_TASK_ID") or os.getenv("MY_ENV_V4_TASK") or os.getenv("TASK_NAME") or "steady_state"
+TASK_ID = os.getenv("OPENENV_TASK_ID") or os.getenv("MY_ENV_V4_TASK") or os.getenv("TASK_NAME") or "task_easy"
 BENCHMARK = "supply_chain_simulator"
 SUCCESS_SCORE_THRESHOLD = 0.1
 

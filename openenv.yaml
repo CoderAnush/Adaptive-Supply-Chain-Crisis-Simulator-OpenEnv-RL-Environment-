@@ -7,6 +7,7 @@ port: 7860
 version: 1.0.0
 description: Adaptive Global Supply Chain Crisis Simulator with Partial Observability and Uncertainty
 author: openenv
+tags: ["openenv"]
 
 model_paths:
   observation: supply_chain.models:Observation
@@ -15,20 +16,23 @@ model_paths:
   state: supply_chain.models:State
 
 tasks:
-  - id: steady_state
+  - id: task_easy
     name: "Steady State Management"
     difficulty: easy
+    tags: ["eval"]
     description: "Easy task with predictable demand and no crises."
     grader: supply_chain.graders:grade_steady_state
     
-  - id: suez_blockage
+  - id: task_medium
     name: "Route Blockage Response"
     difficulty: medium
+    tags: ["eval"]
     description: "Medium task introducing fixed route blockages."
     grader: supply_chain.graders:grade_suez_blockage
     
-  - id: black_swan
+  - id: task_hard
     name: "Black Swan Crisis"
     difficulty: hard
+    tags: ["eval"]
     description: "Hard task with extreme, stochastic multi-modal crises."
     grader: supply_chain.graders:grade_black_swan

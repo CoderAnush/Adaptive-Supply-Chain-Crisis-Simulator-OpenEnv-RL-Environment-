@@ -49,7 +49,7 @@ def grade_black_swan(env: SupplyChainEnv) -> float:
     return BLACK_SWAN_GRADER.grade(env)
 
 TASKS = {
-    "steady_state": STEADY_STATE_GRADER,
-    "suez_blockage": SUEZ_BLOCKAGE_GRADER,
-    "black_swan": BLACK_SWAN_GRADER
+    "task_easy": STEADY_STATE_GRADER,
+    "task_medium": SUEZ_BLOCKAGE_GRADER,
+    "task_hard": BLACK_SWAN_GRADER
 }
